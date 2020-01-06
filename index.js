@@ -14,7 +14,7 @@ const DEFAULT_TTL = 60 * 60;
 
 const bonjour = require('bonjour')({ ttl: DEFAULT_TTL });
 
-async function createSocketService({ type, metadata, name = null, isUnique = true }) {
+async function createService({ type, metadata, name = null, isUnique = true }) {
     if (!name)
         name = `${process.title}_${type}`;
 
@@ -40,4 +40,4 @@ function findServiceOnce({ type, local = true }) {
     return new Promise(resolver => bonjour.find({ type, host }, resolver));
 }
 
-module.exports = { createSocketService, findService, findServiceOnce };
+module.exports = { createService, findService, findServiceOnce };
