@@ -5,14 +5,15 @@ const Observable = require("zen-observable");
 
 function unpublish() {
     console.log("unpublishing");
-    bonjour.unpublishAll()
+    await new Promise(bonjour.unpublishAll)
 }
+
 nodeCleanup(unpublish);
 
 // 1 hour default time-to-live
 const DEFAULT_TTL = 60 * 60;
 
-const bonjour = require('bonjour')({ ttl: DEFAULT_TTL });
+const bonjour = require('bonjour')();
 
 async function createService({ type, metadata, name = null, isUnique = true }) {
     if (!name)
@@ -26,7 +27,10 @@ async function createService({ type, metadata, name = null, isUnique = true }) {
     const socket = io.listen(port);
 
     bonjour.publish({ name, type, port, host, txt: metadata });
-    setInterval(() => bonjour.publish({ name, type, port, host }), DEFAULT_TTL);
+    setInterval(async () => {
+        await unpublish();
+        bonjour.publish({ name, type, port, host })
+    }, DEFAULT_TTL);
     return socket;
 }
 
