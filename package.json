@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/voodoohop/auto_service_discovery#readme",
   "dependencies": {
+    "@most/core": "^1.5.0",
     "bonjour": "^3.5.0",
     "socket.io": "^2.3.0",
     "zen-observable": "^0.8.15"

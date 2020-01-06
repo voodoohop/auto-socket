@@ -1,7 +1,6 @@
 
 const portfinder = require('portfinder');
 const nodeCleanup = require('node-cleanup');
-const Observable = require("zen-observable");
 
 async function unpublish() {
     console.log("unpublishing");
@@ -15,28 +14,39 @@ const DEFAULT_TTL = 60 * 60;
 
 const bonjour = require('bonjour')();
 
-async function createService({ type, metadata, name = null, isUnique = true }) {
-    if (!name)
-        name = `${process.title}_${type}`;
-
-    if (isUnique)
-        name = `${name}_${process.pid}`;
+async function createService() {
 
     const host = os.hostname();
     const port = await portfinder.getPortPromise();
     const socket = io.listen(port);
 
-    bonjour.publish({ name, type, port, host, txt: metadata });
-    setInterval(async () => {
-        await unpublish();
-        bonjour.publish({ name, type, port, host })
-    }, DEFAULT_TTL);
+    let intervalHandle = -1;
+    return {
+        socket,
+        publish: ({ type, txt, name = null, isUnique = true }) => {
+            if (!name)
+                name = `${process.title}_${type}`;
+            if (isUnique)
+                name = `${name}_${process.pid}`;
+
+            const publishParams = { name, type, port, host, txt };
+            bonjour.publish(publishParams);
+
+            if (intervalHandle > 0)
+                clearInterval(intervalHandle);
+
+            intervalHandle = setInterval(async () => {
+                await unpublish();
+                bonjour.publish(publishParams);
+            }, DEFAULT_TTL);
+        }
+    }
     return socket;
 }
 
-function findService({ type, local = true }) {
+function findService({ type, local = true }, callback) {
     const host = local ? os.hostname() : undefined;
-    return new Observable(observer => bonjour.find({ type, host }, observer));
+    bonjour.find({ type, host }, callback);
 }
 
 function findServiceOnce({ type, local = true }) {
