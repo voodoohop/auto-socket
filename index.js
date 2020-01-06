@@ -3,7 +3,7 @@ const portfinder = require('portfinder');
 const nodeCleanup = require('node-cleanup');
 const Observable = require("zen-observable");
 
-function unpublish() {
+async function unpublish() {
     console.log("unpublishing");
     await new Promise(bonjour.unpublishAll)
 }
