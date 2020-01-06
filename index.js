@@ -35,7 +35,7 @@ function findService({ type, local = true }) {
     return new Observable(observer => bonjour.find({ type, host }, observer));
 }
 
-unction findServiceOnce({ type, local = true }) {
+function findServiceOnce({ type, local = true }) {
     const host = local ? os.hostname() : undefined;
     return new Promise(resolver => bonjour.find({ type, host }, resolver));
 }
