@@ -6,13 +6,18 @@ const os = require("os");
 
 async function unpublish() {
     console.log("unpublishing");
-    await new Promise(bonjour.unpublishAll)
+    try {
+        await new Promise(bonjour.unpublishAll);
+    } catch (e) {
+        console.error("Couldn't unpublish but continuing.");
+        console.error(e);
+    }
 }
 
 nodeCleanup(unpublish);
 
 // 1 hour default time-to-live
-const DEFAULT_TTL = 60 * 60;
+const DEFAULT_TTL = 60 * 1000;
 
 const bonjour = require('bonjour')();
 
