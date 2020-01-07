@@ -1,0 +1,1 @@
+const auto_socket = require("./index")
