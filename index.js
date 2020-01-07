@@ -4,10 +4,12 @@ const nodeCleanup = require('node-cleanup');
 const io = require("socket.io");
 const os = require("os");
 
+const bonjour = require('bonjour')();
+
 async function unpublish() {
     console.log("unpublishing");
     try {
-        await new Promise(bonjour.unpublishAll);
+        await new Promise(resolve => bonjour.unpublishAll(resolve));
     } catch (e) {
         console.error("Couldn't unpublish but continuing.");
         console.error(e);
@@ -19,7 +21,7 @@ nodeCleanup(unpublish);
 // 1 hour default time-to-live
 const DEFAULT_TTL = 60 * 1000;
 
-const bonjour = require('bonjour')();
+
 
 async function createService(serviceDescription = null) {
 
