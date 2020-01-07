@@ -43,6 +43,7 @@ async function createService(serviceDescription = null) {
             clearInterval(intervalHandle);
 
         intervalHandle = setInterval(async () => {
+            console.log("Republishing service.");
             await unpublish();
             bonjour.publish(publishParams);
         }, DEFAULT_TTL);
