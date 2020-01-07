@@ -48,7 +48,6 @@ async function createService(serviceDescription = null) {
         socket,
         publish
     }
-    return socket;
 }
 
 function findService({ type, local = true }, callback) {
@@ -58,7 +57,7 @@ function findService({ type, local = true }, callback) {
 
 function findServiceOnce({ type, local = true }) {
     const host = local ? os.hostname() : undefined;
-    return new Promise(resolver => bonjour.find({ type, host }, resolver));
+    return new Promise(resolver => bonjour.findOne({ type, host }, resolver));
 }
 
 module.exports = { createService, findService, findServiceOnce };
