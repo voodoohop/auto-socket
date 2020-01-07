@@ -3,8 +3,14 @@ const portfinder = require('portfinder');
 const nodeCleanup = require('node-cleanup');
 const io = require("socket.io");
 const os = require("os");
-
 const bonjour = require('bonjour')();
+
+// 1 hour default time-to-live
+const DEFAULT_TTL = 60 * 60 * 1000;
+
+const host = os.hostname();
+
+nodeCleanup(unpublish);
 
 async function unpublish() {
     console.log("unpublishing");
@@ -15,12 +21,6 @@ async function unpublish() {
         console.error(e);
     }
 }
-
-nodeCleanup(unpublish);
-// 1 hour default time-to-live
-const DEFAULT_TTL = 60 * 60 * 1000;
-
-const host = os.hostname();
 
 async function createService(serviceDescription = null) {
 
