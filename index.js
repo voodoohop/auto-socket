@@ -19,9 +19,7 @@ async function unpublish() {
 nodeCleanup(unpublish);
 
 // 1 hour default time-to-live
-const DEFAULT_TTL = 60 * 1000;
-
-
+const DEFAULT_TTL = 60 * 60 * 1000;
 
 async function createService(serviceDescription = null) {
 
