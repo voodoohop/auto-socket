@@ -17,24 +17,27 @@ async function unpublish() {
 }
 
 nodeCleanup(unpublish);
-
 // 1 hour default time-to-live
 const DEFAULT_TTL = 60 * 60 * 1000;
 
+const host = os.hostname();
+
 async function createService(serviceDescription = null) {
 
-    const host = os.hostname();
     const port = await portfinder.getPortPromise();
     const socket = io.listen(port);
 
     let intervalHandle = -1;
     const publish = ({ type, txt, name = null, isUnique = true }) => {
-        if (!name)
+        if (name === null)
             name = `${process.title}_${type}`;
         if (isUnique)
             name = `${name}_${process.pid}`;
 
         const publishParams = { name, type, port, host, txt };
+
+        console.log("Publishing", publishParams);
+
         bonjour.publish(publishParams);
 
         if (intervalHandle > 0)
@@ -56,14 +59,22 @@ async function createService(serviceDescription = null) {
     }
 }
 
-function findService({ type, local = true }, callback) {
-    const host = local ? os.hostname() : undefined;
-    bonjour.find({ type, host }, callback);
+const filterLocal = callback => service => {
+    if (service.host === host)
+        callback(service);
 }
 
-function findServiceOnce({ type, local = true }) {
-    const host = local ? os.hostname() : undefined;
-    return new Promise(resolver => bonjour.findOne({ type, host }, resolver));
+function findService({ type, txt, local = true }, callback) {
+
+    if (local)
+        callback = filterLocal(callback);
+
+    bonjour.find({ type, txt }, callback);
+}
+
+function findServiceOnce(options) {
+    return new Promise(resolver => findService(options, resolver));
 }
 
 module.exports = { createService, findService, findServiceOnce };
+
