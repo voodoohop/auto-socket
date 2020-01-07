@@ -14,32 +14,37 @@ const DEFAULT_TTL = 60 * 60;
 
 const bonjour = require('bonjour')();
 
-async function createService() {
+async function createService(serviceDescription = null) {
 
     const host = os.hostname();
     const port = await portfinder.getPortPromise();
     const socket = io.listen(port);
 
     let intervalHandle = -1;
+    const publish = ({ type, txt, name = null, isUnique = true }) => {
+        if (!name)
+            name = `${process.title}_${type}`;
+        if (isUnique)
+            name = `${name}_${process.pid}`;
+
+        const publishParams = { name, type, port, host, txt };
+        bonjour.publish(publishParams);
+
+        if (intervalHandle > 0)
+            clearInterval(intervalHandle);
+
+        intervalHandle = setInterval(async () => {
+            await unpublish();
+            bonjour.publish(publishParams);
+        }, DEFAULT_TTL);
+    }
+
+    if (serviceDescription !== null)
+        publish(serviceDescription);
+
     return {
         socket,
-        publish: ({ type, txt, name = null, isUnique = true }) => {
-            if (!name)
-                name = `${process.title}_${type}`;
-            if (isUnique)
-                name = `${name}_${process.pid}`;
-
-            const publishParams = { name, type, port, host, txt };
-            bonjour.publish(publishParams);
-
-            if (intervalHandle > 0)
-                clearInterval(intervalHandle);
-
-            intervalHandle = setInterval(async () => {
-                await unpublish();
-                bonjour.publish(publishParams);
-            }, DEFAULT_TTL);
-        }
+        publish
     }
     return socket;
 }
