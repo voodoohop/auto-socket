@@ -1,6 +1,7 @@
 
 const portfinder = require('portfinder');
 const nodeCleanup = require('node-cleanup');
+const io = require("socket.io");
 const os = require("os");
 
 async function unpublish() {
