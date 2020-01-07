@@ -30,7 +30,7 @@ async function createService(serviceDescription = null) {
     let intervalHandle = -1;
     const publish = ({ type, txt, name = null, isUnique = true }) => {
         if (name === null)
-            name = `${process.title}_${type}`;
+            name = `${type}`;
         if (isUnique)
             name = `${name}_${process.pid}`;
 
