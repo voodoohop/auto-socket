@@ -1,5 +1,6 @@
 const auto_socket = require("./index");
 
+const io = require("socket.io-client");
 
 async function testService() {
     await auto_socket.createService({ type: "test_service" });
