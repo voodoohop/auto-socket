@@ -28,6 +28,7 @@ async function createService(serviceDescription = null) {
     const socket = io.listen(port);
 
     let intervalHandle = -1;
+    let alreadyPublished = false;
     const publish = async ({ type, txt, name = null, isUnique = true }) => {
         if (name === null)
             name = `${type}`;
@@ -36,11 +37,12 @@ async function createService(serviceDescription = null) {
 
         const publishParams = { name, type, port, host, txt };
 
+        if (alreadyPublished)
+            await unpublish();
 
-
-        await unpublish();
         console.log("Publishing", publishParams);
         bonjour.publish(publishParams);
+        alreadyPublished = true;
 
         if (intervalHandle > 0)
             clearInterval(intervalHandle);
