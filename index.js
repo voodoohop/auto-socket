@@ -1,7 +1,6 @@
 
 const portfinder = require('portfinder');
 const nodeCleanup = require('node-cleanup');
-const io = require("socket.io");
 const os = require("os");
 const bonjour = require('bonjour')();
 
@@ -10,32 +9,21 @@ const DEFAULT_TTL = 60 * 60 * 1000;
 
 const host = os.hostname();
 
-nodeCleanup(unpublish);
+nodeCleanup(_unpublish);
 
-async function unpublish() {
-    console.log("unpublishing");
-    try {
-        await new Promise(resolve => bonjour.unpublishAll(resolve));
-    } catch (e) {
-        console.error("Couldn't unpublish but continuing.");
-        console.error(e);
-    }
-}
 /**
- * Create Websocket service on a free port and automatically broadcast it via bonjour
+ * Find a free port and set up automatic broadcasting via bonjour
  * @param  {} serviceDescription=null Service configuration
  * @param  {} serviceDescription.isUnique True if multiple services of the same name are allowed to coexist
  * @param  {} serviceDescription.name The service name. This is not used for discovery
  * @param  {} serviceDescription.type The service type. This is used for discovery.
  * @param  {} serviceDescription.txt Additional metadata to pass in the DNS TXT field
  */
-async function createService(serviceDescription = null) {
-
+async function prepareService() {
     const port = await portfinder.getPortPromise();
-    const socket = io.listen(port);
-
     let intervalHandle = -1;
     let alreadyPublished = false;
+
     const publish = async ({ type, txt, name = null, isUnique = true }) => {
         if (name === null)
             name = `${type}`;
@@ -45,7 +33,7 @@ async function createService(serviceDescription = null) {
         const publishParams = { name, type, port, host, txt };
 
         if (alreadyPublished)
-            await unpublish();
+            await _unpublish();
 
         console.log("Publishing", publishParams);
         bonjour.publish(publishParams);
@@ -56,18 +44,12 @@ async function createService(serviceDescription = null) {
 
         intervalHandle = setInterval(async () => {
             console.log("Republishing service.");
-            await unpublish();
+            await _unpublish();
             bonjour.publish(publishParams);
         }, DEFAULT_TTL);
     }
 
-    if (serviceDescription !== null)
-        publish(serviceDescription);
-
-    return {
-        socket,
-        publish
-    }
+    return { publish, port };
 }
 
 /**
@@ -85,6 +67,7 @@ function findService({ type, txt, local = true }, callback) {
 
     bonjour.find({ type, txt }, callback);
 }
+
 /**
  * Same as findService but returns a promise that resolves as soon as a service is found that meets the requirements
  * @param  {} options
@@ -99,4 +82,16 @@ const _filterLocal = callback => service => {
         callback(service);
 }
 
-module.exports = { createService, findService, findServiceOnce };
+
+async function _unpublish() {
+    console.log("unpublishing");
+    try {
+        await new Promise(resolve => bonjour.unpublishAll(resolve));
+    } catch (e) {
+        console.error("Couldn't unpublish but continuing.");
+        console.error(e);
+    }
+}
+
+
+module.exports = { prepareService, findService, findServiceOnce };
