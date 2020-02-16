@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/voodoohop/auto_service_discovery#readme",
   "dependencies": {
+    "autossh": "^0.2.0",
     "bonjour": "^3.5.0",
     "node-cleanup": "^2.1.2",
     "portfinder": "^1.0.25",
