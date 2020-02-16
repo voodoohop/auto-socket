@@ -21,7 +21,14 @@ async function unpublish() {
         console.error(e);
     }
 }
-
+/**
+ * Create Websocket service on a free port and automatically broadcast it via bonjour
+ * @param  {} serviceDescription=null Service configuration
+ * @param  {} serviceDescription.isUnique True if multiple services of the same name are allowed to coexist
+ * @param  {} serviceDescription.name The service name. This is not used for discovery
+ * @param  {} serviceDescription.type The service type. This is used for discovery.
+ * @param  {} serviceDescription.txt Additional metadata to pass in the DNS TXT field
+ */
 async function createService(serviceDescription = null) {
 
     const port = await portfinder.getPortPromise();
@@ -63,22 +70,32 @@ async function createService(serviceDescription = null) {
     }
 }
 
-const filterLocal = callback => service => {
-    if (service.host === host)
-        callback(service);
-}
-
+/**
+ * find a service that matches the given type.
+ * @param  {string} type The type of service
+ * @param  {object} txt Metadata
+ * @param  {boolean} local=true}
+ * @param  {func} callback Callback which is called any time a new service is found that satistfies the query
+ */
 function findService({ type, txt, local = true }, callback) {
 
     if (local)
-        callback = filterLocal(callback);
+        callback = _filterLocal(callback);
 
     bonjour.find({ type, txt }, callback);
 }
-
+/**
+ * Same as findService but returns a promise that resolves as soon as a service is found that meets the requirements
+ * @param  {} options
+ */
 function findServiceOnce(options) {
     return new Promise(resolver => findService(options, resolver));
 }
 
-module.exports = { createService, findService, findServiceOnce };
 
+const _filterLocal = callback => service => {
+    if (service.host === host)
+        callback(service);
+}
+
+module.exports = { createService, findService, findServiceOnce };
