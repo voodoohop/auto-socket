@@ -38,7 +38,7 @@ find a service that matches the given type.
 | --- | --- | --- | --- |
 | type | <code>string</code> |  | The type of service |
 | txt | <code>object</code> |  | Metadata |
-| local | <code>boolean</code> | <code>true}</code> |  |
+| local | <code>boolean</code> | <code>true</code> | Whether to look only on the local host for services |
 | callback | <code>func</code> |  | Callback which is called any time a new service is found that satistfies the query |
 
 <a name="findServiceOnce"></a>

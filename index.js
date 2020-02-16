@@ -74,7 +74,7 @@ async function createService(serviceDescription = null) {
  * find a service that matches the given type.
  * @param  {string} type The type of service
  * @param  {object} txt Metadata
- * @param  {boolean} local=true}
+ * @param  {boolean} local=true Whether to look only on the local host for services
  * @param  {func} callback Callback which is called any time a new service is found that satistfies the query
  */
 function findService({ type, txt, local = true }, callback) {
